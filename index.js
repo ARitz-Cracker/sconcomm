@@ -58,17 +58,19 @@ class FixedLengthStream extends Duplex{
 		if (chunk.length + this._currentLength > this.totalLength){
             const endMark = this.totalLength - this._currentLength;
 			this.push(chunk.slice(0,endMark));
-            this.finished = true;
+			this.finished = true;
             this._resolve(chunk.slice(endMark));
-            this.push(null);
+			this.push(null);
+			callback();
 			return;
 		}
         this._currentLength += chunk.length;
         if(this._currentLength === this.totalLength){
 			this.push(chunk);
-            this.finished = true;
+			this.finished = true;
             this._resolve();
-            this.push(null);
+			this.push(null);
+			callback();
 			return;
         }
 		if (this.push(chunk)){
@@ -139,7 +141,7 @@ class Transcoder extends EventEmitter{
     handleData(chunk){
         this.shitToRead.unshift(chunk);
         if(this.sconNeedsDataResolve !== undefined){
-            this.sconNeedsData();
+            this.sconNeedsDataResolve(this.shitToRead.pop());
             delete this.sconNeedsDataResolve;
             delete this.sconNeedsDataReject
         }
@@ -151,7 +153,6 @@ class Transcoder extends EventEmitter{
             do{
                 chunk = this.shitToRead.pop();
                 if (this.passStream === undefined){
-					console.log("decode SCON")
                     try{
                         let decodedData = await scon.decodeAsync(chunk, false, (requestedLength) => {
                             if (this.shitToRead.length === 0){
@@ -163,22 +164,21 @@ class Transcoder extends EventEmitter{
                                 return this.shitToRead.pop();
                             }
 						});
-						console.log("decodedData.result.__data", decodedData.result.__data);
                         if (decodedData.result.__data > 0){
                             this.passStream = new FixedLengthStream(decodedData.result.__data);
 						}
 						delete decodedData.result.__data;
                         this.OnSCON(decodedData.result,this.passStream);
                         if (decodedData.leftover.length > 0){
-							console.log("Leftover???")
                             this.shitToRead.push(decodedData.leftover);
                         }
                     }catch(ex){
                         this.bail(ex);
                     }
                 }else{
-					console.log("Pass stream")
-                    await writeAndWait(this.passStream, chunk);
+					await new Promise((resolve, reject) => {
+						this.passStream.write(chunk, resolve);
+					})
                     if (this.passStream.finished){
                         let leftOver = await this.passStream.leftover;
                         if (leftOver !== undefined){

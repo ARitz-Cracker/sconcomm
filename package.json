@@ -1,12 +1,12 @@
 {
   "name": "sconcomm",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Bi-directional communication using SCON. Because reasons.",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
     "test:cov": "nyc --check-coverage --lines 100 --functions 100 --branches 100 --statements 100 mocha",
-    "travis:start": "npm run test:cov",
+    "travis:start": "npm run test",
     "travis:after": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
