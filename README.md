@@ -28,6 +28,8 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 Add unit tests for any new or changed functionality. 100% code coverage, or bust.
 
 ## Release History
+* 0.8.0 Initial Alpha release
+
 
 [npm-image]: https://nodei.co/npm/sconcomm.png?downloads=true&downloadRank=true&stars=true
 [npm-url]: https://nodei.co/npm/sconcomm/
