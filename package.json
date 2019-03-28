@@ -1,6 +1,6 @@
 {
   "name": "sconcomm",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Bi-directional communication using SCON. Because reasons.",
   "main": "index.js",
   "scripts": {

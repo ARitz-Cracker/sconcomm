@@ -96,12 +96,23 @@ class FixedLengthStream extends Duplex{
         callback(err);
     }
 }
-/*
-reader.pipe(writer, { end: false });
-reader.on('end', () => {
-  writer.end('Goodbye\n');
-});
-*/
+class BlackHole extends Writable{
+	constructor(options) {
+		super(options);
+	}
+	_write(chunk, encoding, callback) {
+		callback();
+	}
+	_writev(chunks, callback) {
+		callback();
+	}
+	_destroy(err, callback) {
+		callback(err);
+	}
+	_final(callback) {
+		callback();
+	}
+}
 class Transcoder extends EventEmitter{
 	constructor(readable,writeable) {
         super();
@@ -367,6 +378,9 @@ class Server extends Transcoder {
 		let i = msg.__id;
 		delete msg.__id;
 		if (i == null){
+			if (stream !== undefined){
+				stream.pipe(new BlackHole());
+			}
 			return; //If the stream was sent by a client, it will always jave an id.
 		}
 		if (stream !== undefined){
@@ -395,9 +409,10 @@ class Server extends Transcoder {
 }
 
 module.exports = {
-	Client:Client,
-	Server:Server,
-	Transcoder:Transcoder,
-	SCONCommError:SCONCommError
+	Client,
+	Server,
+	Transcoder,
+	SCONCommError,
+	BlackHole
 };
 
