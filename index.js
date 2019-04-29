@@ -240,7 +240,7 @@ class Transcoder extends EventEmitter{
 		}
 		return new Promise(function(resolve,reject){
 			if (streamLength != null && stream != null){
-				obj.__data = this.totalLength = (Math.floor(streamLength) || 0);
+				obj.__data = Math.floor(streamLength) || 0;
 				stream.pause();
 			}
 			obj.__resolve = resolve;
