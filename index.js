@@ -36,7 +36,7 @@ let writeAndWait = function(stream,data){
 class FixedLengthStream extends Duplex{
 	constructor(len) {
 		super();
-		this.totalLength = len|0;
+		this.totalLength = Math.floor(len) || 0;
         this._currentLength = 0;
         this.leftover = new Promise((resolve, reject)=>{
             this._resolve = resolve;
@@ -240,7 +240,7 @@ class Transcoder extends EventEmitter{
 		}
 		return new Promise(function(resolve,reject){
 			if (streamLength != null && stream != null){
-				obj.__data = streamLength | 0;
+				obj.__data = this.totalLength = (Math.floor(streamLength) || 0);
 				stream.pause();
 			}
 			obj.__resolve = resolve;
@@ -330,9 +330,11 @@ class Client extends Transcoder {
 		}else{
 			let i = msg.__id;
 			delete msg.__id;
-			this.resolves[i](msg);
-			delete this.resolves[i];
-			delete this.rejects[i];
+			if (this.resolves[i] != null){
+				this.resolves[i](msg);
+				delete this.resolves[i];
+				delete this.rejects[i];
+			}
 		}
 	}
 	send(obj,sconOptions,stream,streamLength) {
